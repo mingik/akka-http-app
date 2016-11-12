@@ -1,0 +1,6 @@
+Simple AkkaHTTP app 
+
+Endpoints:
+
+GET    /events
+
