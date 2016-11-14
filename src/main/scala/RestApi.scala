@@ -12,14 +12,14 @@ import akka.http.scaladsl.model.HttpResponse
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server._
 
-class RestApi(system: ActorSystem, timeout: Timeout) extends RestRoutes {
+class RestApi(system: ActorSystem, timeout: Timeout) extends Rest {
   implicit val requestTimeout = timeout
   implicit def executionContext = system.dispatcher
 
   def createRouteActor = system.actorOf(RouteActor.props, RouteActor.name)
 }
 
-trait RestRoutes extends RouteActorApi with EventMarshalling {
+trait Rest extends Api with EventMarshalling {
   import StatusCodes._
 
   def routes: Route = eventsRoute 
@@ -35,7 +35,7 @@ trait RestRoutes extends RouteActorApi with EventMarshalling {
     }
 }
 
-trait RouteActorApi {
+trait Api {
   import RouteActor._
 
   def createRouteActor(): ActorRef
@@ -45,6 +45,6 @@ trait RouteActorApi {
 
   lazy val routeActor = createRouteActor()
 
-  def getEvents() =
+  def getEvents(): Future[Events] =
     routeActor.ask(GetEvents).mapTo[Events]
 }

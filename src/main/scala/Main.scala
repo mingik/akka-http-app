@@ -22,12 +22,14 @@ object Main extends App with RequestTimeout {
   val api = new RestApi(system, requestTimeout(config)).routes
 
   implicit val materializer = ActorMaterializer()
+
   val bindingFuture: Future[ServerBinding] = Http().bindAndHandle(api, host, port)
 
   val log =  Logging(system.eventStream, "events")
+
   bindingFuture.map { serverBinding =>
     log.info(s"RestApi bound to ${serverBinding.localAddress} ")
-  }.onFailure { 
+  }.onFailure {
     case ex: Exception =>
       log.error(ex, "Failed to bind to {}:{}!", host, port)
       system.terminate()
